@@ -9,8 +9,8 @@ struct HashCell {
 
 struct ConfigurationValues {
     vec3 camera_position;   // camera position
-    uint s_nd;              // normal coarseness
-    uint s_p;               // user-defined level of coarseness in pixel
+    int s_nd;              // normal coarseness
+    int s_p;               // user-defined level of coarseness in pixel
     float f;                 // camera aperture
     uvec2 res;              // screen resolution in pixel
 };
@@ -21,13 +21,12 @@ struct ConfigurationValues {
 const uint FNV_offset_basis = 0x811c9dc5;
 const uint FNV_prime = 0x01000193;
 
-uint[4] _dismemberFloat(float x){
+uint[4] _dismemberBytes(uint x){
     uint res[4];
-    uint ri = floatBitsToUint(x);
-    res[0] = ri & 0xFF000000 >> 24;
-    res[1] = ri & 0x00FF0000 >> 16;
-    res[2] = ri & 0x0000FF00 >> 8;
-    res[3] = ri & 0x000000FF;
+    res[0] = x & 0xFF000000 >> 24;
+    res[1] = x & 0x00FF0000 >> 16;
+    res[2] = x & 0x0000FF00 >> 8;
+    res[3] = x & 0x000000FF;
     return res;
 }
 
@@ -38,13 +37,13 @@ uint _encode(uint hash, uint byte){
 }
 
 uint h1(float x){
-    uint bytes[4] = _dismemberFloat(x);
+    uint bytes[4] = _dismemberBytes(floatBitsToUint(x));
     uint hash = 1;
 
     for(int i=0; i < 4; i++)
         hash = _encode(hash, bytes[i]);
     
-    return hash/HASH_MAP_SIZE;
+    return hash;
 }
 
 //
@@ -52,7 +51,7 @@ uint h1(float x){
 //
 
 uint h2(float x){
-    uint bytes[4] = _dismemberFloat(x);
+    uint bytes[4] = _dismemberBytes(floatBitsToUint(x));
     uint hash = 0;
 
     for(int i=0; i < 4; i++){
@@ -63,7 +62,12 @@ uint h2(float x){
     hash += hash << 3;
     hash = hash ^ (hash >> 11);
     hash += hash << 15;
-    return 0;
+    return hash;
+}
+
+uint roundhash(vec3 position){
+    ivec3 posi = ivec3(position.x, position.y, position.z);
+    return floatBitsToUint(intBitsToFloat(posi.x * posi.y * posi.z)) % HASH_MAP_SIZE;
 }
 
 //
@@ -73,9 +77,9 @@ uint h2(float x){
 //function to specifically adress different levels for blurr later ?
 uint H4D_SWD(vec3 position, uint s_wd){
     return h1(s_wd 
-        + h1(uint(position.z / s_wd) 
-        + h1(uint(position.y / s_wd) 
-        + h1(uint(position.x/ s_wd)))));
+        + h1(position.z / s_wd
+        + h1(position.y / s_wd 
+        + h1(position.x / s_wd))));
 }
 
 //hash function to hash points without normal
@@ -104,9 +108,9 @@ uint H7D(ConfigurationValues c, vec3 position, vec3 normal){
 //function to specifically adress different levels for blurr later ?
 uint H4D_SWD_checksum(vec3 position, uint s_wd){
     return h2(s_wd 
-        + h2(uint(position.z / s_wd) 
-        + h2(uint(position.y / s_wd) 
-        + h2(uint(position.x/ s_wd)))));
+        + h2(position.z / s_wd 
+        + h2(position.y / s_wd 
+        + h2(position.x / s_wd))));
 }
 
 //hash function to hash points with normal

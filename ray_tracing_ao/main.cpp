@@ -36,7 +36,9 @@
 #include "nvvk/commands_vk.hpp"
 #include "nvvk/context_vk.hpp"
 
-
+#include <iostream>
+#include <chrono>
+#include <thread>
 //////////////////////////////////////////////////////////////////////////
 #define UNUSED(x) (void)(x)
 //////////////////////////////////////////////////////////////////////////
@@ -224,6 +226,9 @@ int main(int argc, char** argv)
           changed |= ImGui::SliderFloat("Power", &aoControl.rtao_power, 1, 5);
           changed |= ImGui::InputInt("Max Samples", &aoControl.max_samples);
           changed |= ImGui::Checkbox("Distanced Based", (bool*)&aoControl.rtao_distance_based);
+          changed |= ImGui::SliderInt("s_p", &helloVk.m_configObject.get()->s_p, 0, 10);
+          changed |= ImGui::SliderInt("s_nd", &helloVk.m_configObject.get()->s_nd, 0, 5);
+          //changed |= ImGui::
           if(changed)
             helloVk.resetFrame();
         }
@@ -294,6 +299,7 @@ int main(int argc, char** argv)
       // Submit for display
       vkEndCommandBuffer(cmdBuf);
       helloVk.submitFrame();
+      std::this_thread::sleep_for(std::chrono::milliseconds{500});
     }
     catch(const std::system_error& e)
     {

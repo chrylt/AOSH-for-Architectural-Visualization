@@ -54,7 +54,7 @@ void main()
   float gamma = 1. / 2.2;
   //vec4  color = texture(noisyTxt, uv);
   float ao    = texture(aoTxt, uv).x;
-  vec4 color = vec4(1.0, 0.0, 1.0, 1.0);
+  vec4 color = vec4(1.0, 1.0, 1.0, 1.0);
 
   // Retrieving position and normal
   vec4 gBuffer = imageLoad(_gBuffer, ivec2(gl_FragCoord.xy));
@@ -65,9 +65,23 @@ void main()
     vec3 origin = gBuffer.xyz;
     vec3 normal = DecompressUnitVec(floatBitsToUint(gBuffer.w));
 
-    uint hash = H7D(config, origin, normal);
+    //uint hash = H7D(config, origin, normal);
+    //uint checksum = H7D_checksum(config, origin, normal);
+    uint hash = H4D(config, origin);
+    uint checksum = H4D_checksum(config, origin);
 
-    color = vec4(0.0, 0.0, hashMap[hash].ao_value, 1.0);
+    if(checksum == hashMap[hash].checksum){
+        //ao = hashMap[hash].ao_value;
+        color = vec4(0.0, 1.0, 0.0, 1.0);
+    } else{
+        //ao = hashMap[hash].ao_value;
+        color = vec4(1.0, 0.0, 0.0, 1.0);
+    }
+    
+
+    
+  }else{
+    ao = 0.5;
   }
 
   

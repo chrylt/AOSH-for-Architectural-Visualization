@@ -13,8 +13,8 @@ struct HashCell
 struct ConfigurationValues
 {
   nvmath::vec3f  camera_position;  // camera position
-  uint32_t       s_nd;             // normal coarseness
-  uint32_t       s_p;              // user-defined level of coarseness in pixel
+  int       s_nd;             // normal coarseness
+  int       s_p;              // user-defined level of coarseness in pixel
   float			 f;                // camera aperture
   nvmath::vec2ui res;              // screen resolution in pixel
 };

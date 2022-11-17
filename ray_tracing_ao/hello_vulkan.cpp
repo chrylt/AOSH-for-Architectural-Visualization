@@ -53,7 +53,7 @@ void HelloVulkan::setup(const VkInstance& instance, const VkDevice& device, cons
   m_debug.setup(m_device);
   m_offscreenDepthFormat = nvvk::findDepthFormat(physicalDevice);
 
-  m_configObject = std::make_unique<ConfigurationValues>(ConfigurationValues{CameraManip.getCamera().eye, 3, 3, CameraManip.getCamera().fov,
+  m_configObject = std::make_unique<ConfigurationValues>(ConfigurationValues{CameraManip.getCamera().eye, 3, 5, CameraManip.getCamera().fov,
                                                           nvmath::vec2ui{CameraManip.getWidth(), CameraManip.getHeight()}});
 }
 
@@ -92,13 +92,11 @@ void HelloVulkan::updateUniformBuffer(const VkCommandBuffer& cmdBuf)
   // buffer so it is okay to deallocate when the function returns).
   vkCmdUpdateBuffer(cmdBuf, m_bGlobals.buffer, 0, sizeof(GlobalUniforms), &hostUBO);
 
-  //m_configObject.get()->camera_position = CameraManip.getCamera().eye;
+  m_configObject.get()->camera_position = CameraManip.getCamera().eye;
   //m_configObject.get()->s_nd            = ...;
   //m_configObject.get()->s_p = ...;
   m_configObject.get()->f = CameraManip.getFov();
   m_configObject.get()->res = nvmath::vec2ui{CameraManip.getWidth(), CameraManip.getHeight()};
-
-  m_configObject.get()->camera_position = nvmath::vec3f{0.0, 1.0, 0.0};
 
   vkCmdUpdateBuffer(cmdBuf, m_configBuffer.buffer, 0, sizeof(ConfigurationValues), m_configObject.get());
 
@@ -396,6 +394,7 @@ void HelloVulkan::destroyResources()
   m_alloc.destroy(m_aoBuffer);
   m_alloc.destroy(m_hashMap);
   m_alloc.destroy(m_offscreenDepth);
+  m_alloc.destroy(m_configBuffer);
   vkDestroyPipeline(m_device, m_postPipeline, nullptr);
   vkDestroyPipelineLayout(m_device, m_postPipelineLayout, nullptr);
   vkDestroyDescriptorPool(m_device, m_postDescPool, nullptr);
