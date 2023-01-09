@@ -163,7 +163,7 @@ int main(int argc, char** argv)
   //helloVk.loadModel(nvh::findFile("media/scenes/plane.obj", defaultSearchPaths, true), t);
   //helloVk.loadModel(nvh::findFile("media/scenes/wuson.obj", defaultSearchPaths, true));
   //helloVk.loadModel(nvh::findFile("media/scenes/Medieval_building.obj", defaultSearchPaths, true));
-  helloVk.loadModel(nvh::findFile("media/scenes/sponza_even_smaller.obj", defaultSearchPaths, true));
+  helloVk.loadModel(nvh::findFile("media/scenes/sponza_small.obj", defaultSearchPaths, true));
 
 
   helloVk.createOffscreenRender();
@@ -222,11 +222,15 @@ int main(int argc, char** argv)
       if(helloVk.showGui())
       {
         ImGuiH::Panel::Begin();
-        ImGui::ColorEdit3("Clear color", reinterpret_cast<float*>(&clearColor));
+        //ImGui::ColorEdit3("Clear color", reinterpret_cast<float*>(&clearColor));
 
-        renderUI(helloVk);
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+        ImGui::Checkbox("Show Hash Cells", (bool*)&helloVk.m_configObject->debug_color);
+
+        //renderUI(helloVk);
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-        if(ImGui::CollapsingHeader("Ambient Occlusion"))
+        if(ImGui::CollapsingHeader("Write Ambient Occlusion to Hashmap"))
         {
           bool changed{false};
           changed |= ImGui::SliderFloat("Radius", &aoControl.rtao_radius, 0, 5);
@@ -234,12 +238,23 @@ int main(int argc, char** argv)
           changed |= ImGui::SliderFloat("Power", &aoControl.rtao_power, 1, 5);
           changed |= ImGui::InputInt("Max Samples", &aoControl.max_samples);
           changed |= ImGui::Checkbox("Distanced Based", (bool*)&aoControl.rtao_distance_based);
+          changed |= ImGui::SliderFloat("Normal Cluster Tolerance", &helloVk.hashControl.s_nd, 1, 5);
+          changed |= ImGui::SliderFloat("Cell Size in Pixel", &helloVk.hashControl.s_p, 0.001, 3);
+
           if(changed)
             helloVk.resetFrame();
         }
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if(ImGui::CollapsingHeader("Read Ambient Occlusion from Hashmap and Filter"))
+        {
+          bool changed{false};
+          changed |= ImGui::SliderInt("Min. number of samples per cell", &helloVk.m_configObject->min_nr_samples, 0, 150);
+          changed |= ImGui::SliderFloat("Filtering Distance Falloff", &helloVk.m_configObject->gauss_var1, 0.01, 64);
+          changed |= ImGui::SliderFloat("Filtering Value Faloff", &helloVk.m_configObject->gauss_var2, 0.0001, 1);
 
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        ImGuiH::Control::Info("", "", "(F10) Toggle Pane", ImGuiH::Control::Flags::Disabled);
+        }
+
+        //ImGuiH::Control::Info("", "", "(F10) Toggle Pane", ImGuiH::Control::Flags::Disabled);
         ImGuiH::Panel::End();
       }
 

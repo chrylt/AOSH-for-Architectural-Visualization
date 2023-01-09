@@ -228,5 +228,4 @@ VK_KHR_acceleration_structure
 VK_KHR_ray_query
 VK_KHR_deferred_host_operations
 
-Loading File:  media/scenes/plane.obj 
-Loading File:  media/scenes/Medieval_building.obj 
+Loading File:  media/scenes/sponza_small.obj 

@@ -53,8 +53,12 @@ void HelloVulkan::setup(const VkInstance& instance, const VkDevice& device, cons
   m_debug.setup(m_device);
   m_offscreenDepthFormat = nvvk::findDepthFormat(physicalDevice);
 
-  m_configObject = std::make_unique<ConfigurationValues>(ConfigurationValues{CameraManip.getCamera().eye, 3.0, 0.1, CameraManip.getCamera().fov,
-                                                          nvmath::vec2ui{CameraManip.getWidth(), CameraManip.getHeight()}});
+  hashControl.s_nd = 3.0;
+  hashControl.s_p    = 0.1;
+
+  m_configObject = std::make_unique<ConfigurationValues>(
+      ConfigurationValues{CameraManip.getCamera().eye, hashControl.s_nd, hashControl.s_p, CameraManip.getCamera().fov,
+                          nvmath::vec2ui{CameraManip.getWidth(), CameraManip.getHeight()}, 60, 32, 0.5, false});
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,12 +97,15 @@ void HelloVulkan::updateUniformBuffer(const VkCommandBuffer& cmdBuf)
   vkCmdUpdateBuffer(cmdBuf, m_bGlobals.buffer, 0, sizeof(GlobalUniforms), &hostUBO);
 
   m_configObject.get()->camera_position = CameraManip.getCamera().eye;
-  //m_configObject.get()->s_nd            = ...;
-  //m_configObject.get()->s_p = ...;
+  m_configObject.get()->s_nd            = hashControl.s_nd;
+  m_configObject.get()->s_p             = hashControl.s_p;
   m_configObject.get()->f = CameraManip.getFov();
   m_configObject.get()->res = nvmath::vec2ui{CameraManip.getWidth(), CameraManip.getHeight()};
 
   vkCmdUpdateBuffer(cmdBuf, m_configBuffer.buffer, 0, sizeof(ConfigurationValues), m_configObject.get());
+
+  if(m_frame == -1)
+    vkCmdFillBuffer(cmdBuf, m_hashMap.buffer, 0, VK_WHOLE_SIZE, 0);
 
   // Making sure the updated UBO will be visible.
   VkBufferMemoryBarrier afterBarrier{VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER};
@@ -613,7 +620,7 @@ void HelloVulkan::createPostPipeline()
   // Pipeline: completely generic, no vertices
   nvvk::GraphicsPipelineGeneratorCombined pipelineGenerator(m_device, m_postPipelineLayout, m_renderPass);
   pipelineGenerator.addShader(nvh::loadFile("spv/passthrough.vert.spv", true, defaultSearchPaths, true), VK_SHADER_STAGE_VERTEX_BIT);
-  pipelineGenerator.addShader(nvh::loadFile("spv/SH_post.frag.spv", true, defaultSearchPaths, true), VK_SHADER_STAGE_FRAGMENT_BIT);
+  pipelineGenerator.addShader(nvh::loadFile("spv/SH_post_filter.frag.spv", true, defaultSearchPaths, true), VK_SHADER_STAGE_FRAGMENT_BIT);
   pipelineGenerator.rasterizationState.cullMode = VK_CULL_MODE_NONE;
   m_postPipeline                                = pipelineGenerator.createPipeline();
   m_debug.setObjectName(m_postPipeline, "post");
@@ -853,7 +860,7 @@ void HelloVulkan::createCompPipelines()
 
   VkComputePipelineCreateInfo cpCreateInfo{VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO};
   cpCreateInfo.layout = m_compPipelineLayout;
-  cpCreateInfo.stage = nvvk::createShaderStageInfo(m_device, nvh::loadFile("spv/SH_ao.comp.spv", true, defaultSearchPaths, true),
+  cpCreateInfo.stage = nvvk::createShaderStageInfo(m_device, nvh::loadFile("spv/SH_ao_calc.comp.spv", true, defaultSearchPaths, true),
                                                    VK_SHADER_STAGE_COMPUTE_BIT);
 
   vkCreateComputePipelines(m_device, {}, 1, &cpCreateInfo, nullptr, &m_compPipeline);
@@ -874,7 +881,7 @@ void HelloVulkan::createFilterPipelines()
 
   VkComputePipelineCreateInfo cpCreateInfo{VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO};
   cpCreateInfo.layout = m_filterPipelineLayout;
-  cpCreateInfo.stage = nvvk::createShaderStageInfo(m_device, nvh::loadFile("spv/SH_filtering.comp.spv", true, defaultSearchPaths, true),
+  cpCreateInfo.stage = nvvk::createShaderStageInfo(m_device, nvh::loadFile("spv/SH_image_synth.comp.spv", true, defaultSearchPaths, true),
                                                    VK_SHADER_STAGE_COMPUTE_BIT);
 
   vkCreateComputePipelines(m_device, {}, 1, &cpCreateInfo, nullptr, &m_filterPipeline);
@@ -990,4 +997,5 @@ void HelloVulkan::updateFrame()
 void HelloVulkan::resetFrame()
 {
   m_frame = -1;
+
 }

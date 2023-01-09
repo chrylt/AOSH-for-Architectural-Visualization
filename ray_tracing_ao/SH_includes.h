@@ -23,4 +23,8 @@ struct ConfigurationValues
   float       s_p;              // user-defined level of coarseness in pixel
   float			 f;                // camera aperture
   nvmath::vec2ui res;              // screen resolution in pixel
+  int            min_nr_samples;
+  float          gauss_var1;
+  float          gauss_var2;
+  bool           debug_color;
 };

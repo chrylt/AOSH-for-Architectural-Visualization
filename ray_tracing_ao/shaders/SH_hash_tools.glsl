@@ -15,6 +15,10 @@ struct ConfigurationValues {
     float s_p;               // user-defined level of coarseness in pixel
     float f;                 // camera aperture
     uvec2 res;              // screen resolution in pixel
+    int min_nr_samples;
+    float gauss_var1;
+    float gauss_var2;
+    bool debug_color;
 };
 
 uint pow2[] = {1, 2, 4, 8, 16, 32, 64, 128};

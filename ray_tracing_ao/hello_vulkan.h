@@ -40,6 +40,13 @@ struct AoControl
   int   max_samples{100'000};    // Max samples before it stops
 };
 
+struct HashControl
+{
+  float s_nd;
+  float s_p;
+};
+
+
 
 //--------------------------------------------------------------------------------------------------
 // Simple rasterizer of OBJ objects
@@ -185,4 +192,7 @@ public:
   void updateFrame();
   void resetFrame();
   int  m_frame{0};
+
+  // Controls
+  HashControl hashControl;
 };
