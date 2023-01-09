@@ -158,6 +158,8 @@ int main(int argc, char** argv)
   // Setup Imgui
   helloVk.initGUI(0);  // Using sub-pass 0
 
+  std::string filePath{"media/scenes/sponza_small.obj"};
+
   // Creation of the example
   nvmath::mat4f t = nvmath::translation_mat4(nvmath::vec3f{0, -10.0, 0});
   //helloVk.loadModel(nvh::findFile("media/scenes/plane.obj", defaultSearchPaths, true), t);
@@ -224,11 +226,13 @@ int main(int argc, char** argv)
         ImGuiH::Panel::Begin();
         //ImGui::ColorEdit3("Clear color", reinterpret_cast<float*>(&clearColor));
 
+        renderUI(helloVk);
+
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
         ImGui::Checkbox("Show Hash Cells", (bool*)&helloVk.m_configObject->debug_color);
 
-        //renderUI(helloVk);
+        
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if(ImGui::CollapsingHeader("Write Ambient Occlusion to Hashmap"))
         {
@@ -253,6 +257,20 @@ int main(int argc, char** argv)
           changed |= ImGui::SliderFloat("Filtering Value Faloff", &helloVk.m_configObject->gauss_var2, 0.0001, 1);
 
         }
+        
+        /*
+        int index;
+        ImGui::InputInt("Model Index", &index, 0, 4);
+
+        helloVk.loaded
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if(ImGui::Button("Load Model"))
+        {
+          switch(filePath)
+          {
+          
+          }
+        }*/
 
         //ImGuiH::Control::Info("", "", "(F10) Toggle Pane", ImGuiH::Control::Flags::Disabled);
         ImGuiH::Panel::End();
