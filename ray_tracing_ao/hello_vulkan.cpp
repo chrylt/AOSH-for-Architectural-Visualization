@@ -101,6 +101,7 @@ void HelloVulkan::updateUniformBuffer(const VkCommandBuffer& cmdBuf)
   m_configObject.get()->s_p             = hashControl.s_p;
   m_configObject.get()->f = CameraManip.getFov();
   m_configObject.get()->res = nvmath::vec2ui{CameraManip.getWidth(), CameraManip.getHeight()};
+  m_configObject.get()->debug_color     = hashControl.debug_cells;
 
   vkCmdUpdateBuffer(cmdBuf, m_configBuffer.buffer, 0, sizeof(ConfigurationValues), m_configObject.get());
 

@@ -161,7 +161,8 @@ int main(int argc, char** argv)
   std::string filePath{"media/scenes/sponza_small.obj"};
 
   // Creation of the example
-  nvmath::mat4f t = nvmath::translation_mat4(nvmath::vec3f{0, -10.0, 0});
+  nvmath::mat4f t = nvmath::translation_mat4(nvmath::vec3f{0, 0.0, 0});
+  //nvmath::mat4f t = nvmath::translation_mat4(nvmath::vec3f{0, 10.0, 0});
   //helloVk.loadModel(nvh::findFile("media/scenes/plane.obj", defaultSearchPaths, true), t);
   //helloVk.loadModel(nvh::findFile("media/scenes/wuson.obj", defaultSearchPaths, true));
   //helloVk.loadModel(nvh::findFile("media/scenes/Medieval_building.obj", defaultSearchPaths, true));
@@ -230,7 +231,7 @@ int main(int argc, char** argv)
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-        ImGui::Checkbox("Show Hash Cells", (bool*)&helloVk.m_configObject->debug_color);
+        ImGui::Checkbox("Show Hash Cells", (bool*)&helloVk.hashControl.debug_cells);
 
         
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
@@ -255,7 +256,7 @@ int main(int argc, char** argv)
           changed |= ImGui::SliderInt("Min. number of samples per cell", &helloVk.m_configObject->min_nr_samples, 0, 150);
           changed |= ImGui::SliderFloat("Filtering Distance Falloff", &helloVk.m_configObject->gauss_var1, 0.01, 64);
           changed |= ImGui::SliderFloat("Filtering Value Faloff", &helloVk.m_configObject->gauss_var2, 0.0001, 1);
-
+          changed |= ImGui::SliderInt("Filtering Level Increase", &helloVk.m_configObject->filter_level_increase, 0, 7);
         }
         
         /*

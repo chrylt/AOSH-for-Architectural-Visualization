@@ -27,4 +27,5 @@ struct ConfigurationValues
   float          gauss_var1;
   float          gauss_var2;
   bool           debug_color;
+  int            filter_level_increase;
 };

@@ -34,7 +34,7 @@ layout(scalar, set = 0, binding = 2) readonly buffer HashMap {
     HashCell hashMap[HASH_MAP_SIZE];
 };
 
-layout(set = 0, binding = 3) uniform UniformBuffer {
+layout(scalar, set = 0, binding = 3) uniform UniformBuffer {
     ConfigurationValues config;
 };
 
@@ -74,7 +74,7 @@ void main()
 
     // Calculate cell size to obtain the size of the sampling kernel
     float s_wd = s_wd_calc(config, position_mid);
-    float step_size = s_wd;
+    float step_size = s_wd * pow2[config.filter_level_increase];
     
     //give hash-cells colors
     if(config.debug_color)
@@ -118,6 +118,8 @@ void main()
     }
     final_ao = ao_acc / weight_acc;
   }
+
+  //final_ao = texture(aoTxt, uv).x;
 
   fragColor = pow(color * final_ao, vec4(gamma));
 }

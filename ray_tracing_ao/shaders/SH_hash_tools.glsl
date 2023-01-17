@@ -19,6 +19,7 @@ struct ConfigurationValues {
     float gauss_var1;
     float gauss_var2;
     bool debug_color;
+    int filter_level_increase;
 };
 
 uint pow2[] = {1, 2, 4, 8, 16, 32, 64, 128};

@@ -44,6 +44,7 @@ struct HashControl
 {
   float s_nd;
   float s_p;
+  bool  debug_cells;
 };
 
 

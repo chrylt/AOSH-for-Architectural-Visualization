@@ -200,6 +200,7 @@ void main()
 
             // Found oldest entry to replace
             final_index = hash + final_offset;
+            clear_entry = true;
         }
 
         if(clear_entry){
