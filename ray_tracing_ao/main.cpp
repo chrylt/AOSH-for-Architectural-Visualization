@@ -37,6 +37,8 @@
 #include "nvvk/context_vk.hpp"
 
 #include "SH_HashTester.h"
+#include "Timer.h"
+
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -56,6 +58,7 @@ static void onErrorCallback(int error, const char* description)
 // Extra UI
 void renderUI(HelloVulkan& helloVk)
 {
+  /*
   ImGuiH::CameraWidget();
   if(ImGui::CollapsingHeader("Light"))
   {
@@ -65,7 +68,7 @@ void renderUI(HelloVulkan& helloVk)
 
     ImGui::SliderFloat3("Position", &helloVk.m_pcRaster.lightPosition.x, -20.f, 20.f);
     ImGui::SliderFloat("Intensity", &helloVk.m_pcRaster.lightIntensity, 0.f, 150.f);
-  }
+  }*/
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -161,13 +164,16 @@ int main(int argc, char** argv)
   std::string filePath{"media/scenes/sponza_small.obj"};
 
   // Creation of the example
-  nvmath::mat4f t = nvmath::translation_mat4(nvmath::vec3f{0, 0.0, 0});
+  nvmath::mat4f t = nvmath::translation_mat4(nvmath::vec3f{1052.1770, -1269.381, -308.657});
+  nvmath::mat4f s = nvmath::scale_mat4(nvmath::vec3f(0.1, 0.1, 0.1));
+  nvmath::matrix4<float> r = nvmath::rotation_mat4_x<float>(4.7123889804);
   //nvmath::mat4f t = nvmath::translation_mat4(nvmath::vec3f{0, 10.0, 0});
   //helloVk.loadModel(nvh::findFile("media/scenes/plane.obj", defaultSearchPaths, true), t);
   //helloVk.loadModel(nvh::findFile("media/scenes/wuson.obj", defaultSearchPaths, true));
   //helloVk.loadModel(nvh::findFile("media/scenes/Medieval_building.obj", defaultSearchPaths, true));
-  helloVk.loadModel(nvh::findFile("media/scenes/sponza_small.obj", defaultSearchPaths, true));
-
+  //helloVk.loadModel(nvh::findFile("media/scenes/sponza_small.obj", defaultSearchPaths, true));
+  helloVk.loadModel(nvh::findFile("media/scenes/sample_city_scaled.obj", defaultSearchPaths, true));
+  //helloVk.loadModel(nvh::findFile("media/scenes/3d_city_sample_terrain.obj", defaultSearchPaths, true), r * s * t);
 
   helloVk.createOffscreenRender();
   helloVk.createDescriptorSetLayout();
@@ -207,6 +213,9 @@ int main(int argc, char** argv)
 
   //HashTester tester{};
   //tester.startTester();
+
+  
+  Timer timer{};
 
   // Main loop
   while(!glfwWindowShouldClose(window))
@@ -287,6 +296,8 @@ int main(int argc, char** argv)
       VkCommandBufferBeginInfo beginInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
       beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
       vkBeginCommandBuffer(cmdBuf, &beginInfo);
+      timer.init(&helloVk, &cmdBuf);
+
 
       // Updating camera buffer
       helloVk.updateUniformBuffer(cmdBuf);
@@ -309,10 +320,12 @@ int main(int argc, char** argv)
 
         // Rendering Scene
         {
+          
           vkCmdBeginRenderPass(cmdBuf, &offscreenRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-          helloVk.rasterize(cmdBuf);
+          helloVk.rasterize(cmdBuf, timer);
           vkCmdEndRenderPass(cmdBuf);
-          helloVk.runCompute(cmdBuf, aoControl);
+          helloVk.runCompute(cmdBuf, aoControl, timer);
+          
         }
       }
 
@@ -328,7 +341,7 @@ int main(int argc, char** argv)
 
         // Rendering tonemapper
         vkCmdBeginRenderPass(cmdBuf, &postRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-        helloVk.drawPost(cmdBuf);
+        helloVk.drawPost(cmdBuf, timer);
         // Rendering UI
         ImGui::Render();
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuf);
@@ -336,8 +349,18 @@ int main(int argc, char** argv)
       }
 
       // Submit for display
+
       vkEndCommandBuffer(cmdBuf);
+
       helloVk.submitFrame();
+
+      {
+        nvvk::ScopeCommandBuffer commandBuffer(helloVk.getDevice(), helloVk.getQueueFamily(), helloVk.getQueue());
+        timer.finishGPU(commandBuffer);
+      }
+
+      
+
     }
     catch(const std::system_error& e)
     {
@@ -361,6 +384,12 @@ int main(int argc, char** argv)
 
   glfwDestroyWindow(window);
   glfwTerminate();
+
+  timer.printTimeMS("rasterize");
+  timer.printTimeMS("ao_calc");
+  timer.printTimeMS("image_synth");
+  timer.printTimeMS("post");
+
 
   return 0;
 }

@@ -30,6 +30,8 @@
 // #VKRay
 #include "nvvk/raytraceKHR_vk.hpp"
 
+class Timer;
+
 struct AoControl
 {
   float rtao_radius{2.0f};       // Length of the ray
@@ -70,7 +72,7 @@ public:
   void updateUniformBuffer(const VkCommandBuffer& cmdBuf);
   void onResize(int /*w*/, int /*h*/) override;
   void destroyResources();
-  void rasterize(const VkCommandBuffer& cmdBuff);
+  void rasterize(const VkCommandBuffer& cmdBuff, Timer& timer);
 
   // The OBJ model
   struct ObjModel
@@ -128,7 +130,7 @@ public:
   void createPostPipeline();
   void createPostDescriptor();
   void updatePostDescriptorSet();
-  void drawPost(VkCommandBuffer cmdBuf);
+  void drawPost(VkCommandBuffer cmdBuf, Timer& timer);
 
   nvvk::DescriptorSetBindings m_postDescSetLayoutBind;
   VkDescriptorPool            m_postDescPool{VK_NULL_HANDLE};
@@ -167,7 +169,7 @@ public:
   void createCompDescriptors();
   void updateCompDescriptors();
   void createCompPipelines();
-  void runCompute(VkCommandBuffer cmdBuf, AoControl& aoControl);
+  void runCompute(VkCommandBuffer cmdBuf, AoControl& aoControl, Timer& timer);
 
   nvvk::DescriptorSetBindings m_compDescSetLayoutBind;
   VkDescriptorPool            m_compDescPool;
@@ -180,7 +182,7 @@ public:
   void createFilterDescriptors();
   void updateFilterDescriptors();
   void createFilterPipelines();
-  void runFilter(VkCommandBuffer cmdBuf);
+  void runFilter(VkCommandBuffer cmdBuf, Timer& timer);
 
   nvvk::DescriptorSetBindings m_filterDescSetLayoutBind;
   VkDescriptorPool            m_filterDescPool;

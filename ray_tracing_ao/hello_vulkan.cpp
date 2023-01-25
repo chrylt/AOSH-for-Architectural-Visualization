@@ -39,6 +39,10 @@
 #include "shaders/host_device.h"
 #include "SH_includes.h"
 
+#include "Timer.h"
+
+
+
 extern std::vector<std::string> defaultSearchPaths;
 
 
@@ -431,7 +435,7 @@ void HelloVulkan::destroyResources()
 //--------------------------------------------------------------------------------------------------
 // Drawing the scene in raster mode
 //
-void HelloVulkan::rasterize(const VkCommandBuffer& cmdBuf)
+void HelloVulkan::rasterize(const VkCommandBuffer& cmdBuf, Timer& timer)
 {
   VkDeviceSize offset{0};
 
@@ -455,7 +459,9 @@ void HelloVulkan::rasterize(const VkCommandBuffer& cmdBuf)
                        sizeof(PushConstantRaster), &m_pcRaster);
     vkCmdBindVertexBuffers(cmdBuf, 0, 1, &model.vertexBuffer.buffer, &offset);
     vkCmdBindIndexBuffer(cmdBuf, model.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+    timer.startGPU("rasterize");
     vkCmdDrawIndexed(cmdBuf, model.nbIndices, 1, 0, 0, 0);
+    timer.endGPU("rasterize");
   }
   m_debug.endLabel(cmdBuf);
 }
@@ -664,7 +670,7 @@ void HelloVulkan::updatePostDescriptorSet()
 //--------------------------------------------------------------------------------------------------
 // Draw a full screen quad with the attached image
 //
-void HelloVulkan::drawPost(VkCommandBuffer cmdBuf)
+void HelloVulkan::drawPost(VkCommandBuffer cmdBuf, Timer& timer)
 {
   m_debug.beginLabel(cmdBuf, "Post");
 
@@ -674,7 +680,9 @@ void HelloVulkan::drawPost(VkCommandBuffer cmdBuf)
   vkCmdPushConstants(cmdBuf, m_postPipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(float), &aspectRatio);
   vkCmdBindPipeline(cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, m_postPipeline);
   vkCmdBindDescriptorSets(cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, m_postPipelineLayout, 0, 1, &m_postDescSet, 0, nullptr);
+  timer.startGPU("post");
   vkCmdDraw(cmdBuf, 3, 1, 0, 0);
+  timer.endGPU("post");
 
   m_debug.endLabel(cmdBuf);
 }
@@ -894,7 +902,7 @@ void HelloVulkan::createFilterPipelines()
 // Running compute shader
 //
 #define GROUP_SIZE 16  // Same group size as in compute shader
-void HelloVulkan::runCompute(VkCommandBuffer cmdBuf, AoControl& aoControl)
+void HelloVulkan::runCompute(VkCommandBuffer cmdBuf, AoControl& aoControl,Timer& timer)
 {
   updateFrame();
 
@@ -945,8 +953,9 @@ void HelloVulkan::runCompute(VkCommandBuffer cmdBuf, AoControl& aoControl)
   vkCmdPushConstants(cmdBuf, m_compPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(AoControl), &aoControl);
 
   // Dispatching the shader
+  timer.startGPU("ao_calc");
   vkCmdDispatch(cmdBuf, (m_size.width + (GROUP_SIZE - 1)) / GROUP_SIZE, (m_size.height + (GROUP_SIZE - 1)) / GROUP_SIZE, 1);
-
+  timer.endGPU("ao_calc");
   // Adding a barrier to be sure the compute shader has finished
   // writing to the AO buffer before the post shader is using it
   imgMemBarrier.image = m_aoBuffer.image;
@@ -962,8 +971,9 @@ void HelloVulkan::runCompute(VkCommandBuffer cmdBuf, AoControl& aoControl)
 
   vkCmdPushConstants(cmdBuf, m_filterPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(AoControl), &aoControl);
 
+  timer.startGPU("image_synth");
   vkCmdDispatch(cmdBuf, (m_size.width + (GROUP_SIZE - 1)) / GROUP_SIZE, (m_size.height + (GROUP_SIZE - 1)) / GROUP_SIZE, 1);
-  
+  timer.endGPU("image_synth");
   vkCmdPipelineBarrier(cmdBuf, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                        VK_DEPENDENCY_DEVICE_GROUP_BIT, 0, nullptr, 0, nullptr, 1, &imgMemBarrier);
 

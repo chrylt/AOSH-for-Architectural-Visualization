@@ -12,6 +12,8 @@ project(${PROJNAME} LANGUAGES C CXX)
 message(STATUS "-------------------------------")
 message(STATUS "Processing Project ${PROJNAME}:")
 
+#set (CMAKE_SHARED_LINKER_FLAGS "-Bsymbolic,-Bsymbolic-functions")
+
 
 #--------------------------------------------------------------------------------------------------
 # C++ target and defines
@@ -29,6 +31,7 @@ list(APPEND COMMON_SOURCE_FILES ${EXTRA_COMMON})
 include_directories(${TUTO_KHR_DIR}/common)
 
 
+
 #--------------------------------------------------------------------------------------------------
 # GLSL to SPIR-V custom build
 compile_glsl_directory(
@@ -41,7 +44,7 @@ compile_glsl_directory(
 
 #--------------------------------------------------------------------------------------------------
 # Sources
-target_sources(${PROJNAME} PUBLIC ${SOURCE_FILES} ${HEADER_FILES} "SH_includes.h" "SH_HashTester.h" "SH_HashTester.cpp"  )
+target_sources(${PROJNAME} PUBLIC ${SOURCE_FILES} ${HEADER_FILES} "SH_includes.h" "SH_HashTester.h" "SH_HashTester.cpp" "Timer.h" "Timer.cpp")
 target_sources(${PROJNAME} PUBLIC ${COMMON_SOURCE_FILES})
 target_sources(${PROJNAME} PUBLIC ${PACKAGE_SOURCE_FILES})
 target_sources(${PROJNAME} PUBLIC ${GLSL_SOURCES} ${GLSL_HEADERS})

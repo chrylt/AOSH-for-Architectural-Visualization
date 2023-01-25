@@ -117,6 +117,12 @@ void main()
         }
     }
     final_ao = ao_acc / weight_acc;
+    //color = vec4(position_mid, 1);
+  }
+  else{
+    color = vec4(0.5,0.5,0.5,1);
+    final_ao = 0.5;
+
   }
 
   //final_ao = texture(aoTxt, uv).x;
