@@ -57,12 +57,20 @@ void HelloVulkan::setup(const VkInstance& instance, const VkDevice& device, cons
   m_debug.setup(m_device);
   m_offscreenDepthFormat = nvvk::findDepthFormat(physicalDevice);
 
-  hashControl.s_nd = 3.0;
-  hashControl.s_p    = 0.2;
 
-  m_configObject = std::make_unique<ConfigurationValues>(
-      ConfigurationValues{CameraManip.getCamera().eye, hashControl.s_nd, hashControl.s_p, CameraManip.getCamera().fov,
-                          nvmath::vec2ui{CameraManip.getWidth(), CameraManip.getHeight()}, 60, 32, 0.5, false});
+  m_configObject =std::make_unique<ConfigurationValues>(ConfigurationValues{});
+  m_configObject->camera_position = CameraManip.getCamera().eye;
+  m_configObject->s_nd            = 3.0;
+  m_configObject->s_p             = 0.15;
+  m_configObject->f               = CameraManip.getCamera().fov;
+  m_configObject->res             = nvmath::vec2ui{CameraManip.getWidth(), CameraManip.getHeight()};
+  m_configObject->min_nr_samples  = 60;
+  m_configObject->gauss_var1      = 0.4;
+  m_configObject->gauss_var2      = 0.8;
+  m_configObject->debug_color     = false;
+  m_configObject->coarseness_level_increase = 0;
+  m_configObject->toggle_filter = true;
+  m_configObject->atrous_iterations         = 3;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,12 +108,10 @@ void HelloVulkan::updateUniformBuffer(const VkCommandBuffer& cmdBuf)
   // buffer so it is okay to deallocate when the function returns).
   vkCmdUpdateBuffer(cmdBuf, m_bGlobals.buffer, 0, sizeof(GlobalUniforms), &hostUBO);
 
-  m_configObject.get()->camera_position = CameraManip.getCamera().eye;
-  m_configObject.get()->s_nd            = hashControl.s_nd;
-  m_configObject.get()->s_p             = hashControl.s_p;
+  m_configObject->camera_position = CameraManip.getCamera().eye;
   m_configObject.get()->f = CameraManip.getFov();
   m_configObject.get()->res = nvmath::vec2ui{CameraManip.getWidth(), CameraManip.getHeight()};
-  m_configObject.get()->debug_color     = hashControl.debug_cells;
+  //m_configObject.get()->debug_color     = hashControl.debug_cells;
 
   vkCmdUpdateBuffer(cmdBuf, m_configBuffer.buffer, 0, sizeof(ConfigurationValues), m_configObject.get());
 

@@ -59,16 +59,7 @@ static void onErrorCallback(int error, const char* description)
 void renderUI(HelloVulkan& helloVk)
 {
   
-  ImGuiH::CameraWidget();/*
-  if(ImGui::CollapsingHeader("Light"))
-  {
-    ImGui::RadioButton("Point", &helloVk.m_pcRaster.lightType, 0);
-    ImGui::SameLine();
-    ImGui::RadioButton("Infinite", &helloVk.m_pcRaster.lightType, 1);
-
-    ImGui::SliderFloat3("Position", &helloVk.m_pcRaster.lightPosition.x, -20.f, 20.f);
-    ImGui::SliderFloat("Intensity", &helloVk.m_pcRaster.lightIntensity, 0.f, 150.f);
-  }*/
+  ImGuiH::CameraWidget();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -161,19 +152,48 @@ int main(int argc, char** argv)
   // Setup Imgui
   helloVk.initGUI(0);  // Using sub-pass 0
 
-  std::string filePath{"media/scenes/sponza_small.obj"};
+  enum MODEL
+  {
+      SAMPLE_CITY,
+      JAPANESE_STREET,
+      SPONZA_OLD,
+      SPONZA_NEW
+  };
 
-  // Creation of the example
-  nvmath::mat4f t = nvmath::translation_mat4(nvmath::vec3f{0, 20, -100});
-  //nvmath::mat4f t = nvmath::translation_mat4(nvmath::vec3f{0, 10.0, 0});
-  //helloVk.loadModel(nvh::findFile("media/scenes/plane.obj", defaultSearchPaths, true), t);
-  //helloVk.loadModel(nvh::findFile("media/scenes/wuson.obj", defaultSearchPaths, true));
-  //helloVk.loadModel(nvh::findFile("media/scenes/Medieval_building.obj", defaultSearchPaths, true));
-  //helloVk.loadModel(nvh::findFile("media/scenes/sponza_small.obj", defaultSearchPaths, true));
-  helloVk.loadModel(nvh::findFile("media/scenes/sponza_new.obj", defaultSearchPaths, true));
-  //helloVk.loadModel(nvh::findFile("media/scenes/sample_city_scaled.obj", defaultSearchPaths, true));
-  //helloVk.loadModel(nvh::findFile("media/scenes/japan_street.obj", defaultSearchPaths, true));
+  MODEL current_model = SPONZA_NEW;
 
+  nvmath::vec3f ctr;
+  nvmath::vec3f eye;
+
+  switch(current_model)
+  {
+
+    case SAMPLE_CITY:
+      helloVk.loadModel(nvh::findFile("media/scenes/sample_city_scaled.obj", defaultSearchPaths, true));
+
+      ctr = nvmath::vec3f{4, 8, -1};
+      eye = nvmath::vec3f{-1, 11, -17};
+      break;
+
+    case JAPANESE_STREET:
+      helloVk.loadModel(nvh::findFile("media/scenes/japan_street.obj", defaultSearchPaths, true));
+
+      ctr = nvmath::vec3f{23, 23, 11};
+      eye = nvmath::vec3f{-17, 35, 83};
+      break;
+    case SPONZA_OLD:
+      helloVk.loadModel(nvh::findFile("media/scenes/sponza_small.obj", defaultSearchPaths, true));
+
+      ctr = nvmath::vec3f{-50.5, 22.1, 11.4};
+      eye = nvmath::vec3f{29.1, 3.4, -2.7};
+      break;
+    case SPONZA_NEW:
+      helloVk.loadModel(nvh::findFile("media/scenes/sponza_new.obj", defaultSearchPaths, true));
+      
+      ctr = nvmath::vec3f{-50.5, 22.1, 11.4};
+      eye = nvmath::vec3f{29.1, 3.4, -2.7};
+      break;
+  }
 
 
   helloVk.createOffscreenRender();
@@ -211,82 +231,19 @@ int main(int argc, char** argv)
 
 
   AoControl aoControl;
-  
   Timer timer{&helloVk};
 
-  helloVk.hashControl.debug_cells = false;
-  aoControl.rtao_samples          = 4;
-
-  bool sponza            = true;
-  bool japanese_measures = false;
-  bool sample_city       = false;
-
-  nvmath::vec3f ctr;
-  nvmath::vec3f eye;
-
-  nvmath::vec3f ctr2;
-  nvmath::vec3f eye2;
-
-  if(japanese_measures)
-  {
-    ctr = nvmath::vec3f{23, 23, 11};
-    eye = nvmath::vec3f{-17, 35, 83};
-
-    ctr2 = nvmath::vec3f{-10, 27, -8};
-    eye2 = nvmath::vec3f{-10, 27, -8};
-  }
-
-  if(sample_city)
-  {
-    ctr = nvmath::vec3f{4, 8, -1};
-    eye = nvmath::vec3f{-1, 11, -17};
-
-    ctr2 = nvmath::vec3f{46, 2, 19};
-    eye2 = nvmath::vec3f{45, 2, 16};
-  }
-
-  if(sponza)
-  {
-    ctr = nvmath::vec3f{-50.5, 22.1, 11.4};
-    eye = nvmath::vec3f{29.1, 3.4, -2.7};
-  }
-
   CameraManip.setLookat(eye, ctr, nvmath::vec3f{0, 1, 0}, true);
-  CameraManip.setMode(CameraManip.Fly);
-
-  bool          setanim = false;
-
-  int counter = 0;
-  bool done    = false;
-
-  int complete_counter = 0;
-  int complete_end     = 1000;
+  CameraManip.setMode(CameraManip.Walk);
   
   // Main loop
   while(!glfwWindowShouldClose(window))
   {
     try
     {
-      complete_counter++;
-      if(complete_counter > complete_end)
-      {
-
-        //goto end
-      }
-      if(!done)
-        counter++;
-      if(counter > 1000)
-      {
-        //CameraManip.setLookat(eye2, ctr2, nvmath::vec3f{0, 1, 0}, false);
-        done = true;
-        counter = -1;
-      }
-  
-
       glfwPollEvents();
       if(helloVk.isMinimized())
         continue;
-
       
       // Start the Dear ImGui frame
       ImGui_ImplGlfw_NewFrame();
@@ -297,12 +254,10 @@ int main(int argc, char** argv)
       {
         ImGuiH::Panel::Begin();
 
-        renderUI(helloVk);
+        //renderUI(helloVk);
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-        ImGui::Checkbox("Show Hash Cells", (bool*)&helloVk.hashControl.debug_cells);
-
+        ImGui::Checkbox("Show Hash Cells", (bool*)&helloVk.m_configObject->debug_color);
         
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if(ImGui::CollapsingHeader("Write Ambient Occlusion to Hash Table"))
@@ -312,8 +267,8 @@ int main(int argc, char** argv)
           changed |= ImGui::SliderInt("Rays per Pixel", &aoControl.rtao_samples, 1, 4096);
           changed |= ImGui::SliderFloat("Power", &aoControl.rtao_power, 1, 5);
           changed |= ImGui::Checkbox("Distanced Based", (bool*)&aoControl.rtao_distance_based);
-          changed |= ImGui::SliderFloat("Normal Tolerance", &helloVk.hashControl.s_nd, 1, 5);
-          changed |= ImGui::SliderFloat("Cell Size in Pixel", &helloVk.hashControl.s_p, 0.001, 3);
+          changed |= ImGui::SliderFloat("Normal Tolerance", &helloVk.m_configObject->s_nd, 1, 5);
+          changed |= ImGui::SliderFloat("Cell Size in Pixel", &helloVk.m_configObject->s_p, 0.001, 3);
 
           if(changed)
             helloVk.resetFrame();
@@ -322,10 +277,12 @@ int main(int argc, char** argv)
         if(ImGui::CollapsingHeader("Read Ambient Occlusion from Hash Table and Filter"))
         {
           bool changed{false};
+          ImGui::Checkbox("Toggle Filter", (bool*)&helloVk.m_configObject.get()->toggle_filter);
           changed |= ImGui::SliderInt("Min. Samples per Cell", &helloVk.m_configObject->min_nr_samples, 0, 150);
-          changed |= ImGui::SliderFloat("Filtering Distance Falloff", &helloVk.m_configObject->gauss_var1, 0.01, 5);
+          changed |= ImGui::SliderInt("Coarseness Level Increase", &helloVk.m_configObject->coarseness_level_increase, 0, 5);
+          changed |= ImGui::SliderInt("A-trous iterations", &helloVk.m_configObject->atrous_iterations, 1, 10);
+          changed |= ImGui::SliderFloat("Filtering Distance Falloff", &helloVk.m_configObject->gauss_var1, 0.0001, 5);
           changed |= ImGui::SliderFloat("Filtering Value Falloff", &helloVk.m_configObject->gauss_var2, 0.0001, 5);
-          changed |= ImGui::SliderInt("Filtering Level Increase", &helloVk.m_configObject->filter_level_increase, 0, 7);
         }
         
         ImGuiH::Panel::End();
@@ -404,9 +361,7 @@ int main(int argc, char** argv)
         timer.finishGPU(commandBuffer);
       }
 
-      
       CameraManip.updateAnim();
-
     }
     catch(const std::system_error& e)
     {

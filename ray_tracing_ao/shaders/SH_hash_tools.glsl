@@ -19,7 +19,9 @@ struct ConfigurationValues {
     float gauss_var1;
     float gauss_var2;
     bool debug_color;
-    int filter_level_increase;
+    int coarseness_level_increase;
+    bool toggle_filter;
+    int atrous_iterations;
 };
 
 uint pow2[] = {1, 2, 4, 8, 16, 32, 64, 128};
@@ -42,8 +44,6 @@ uint wang_hash(float key)
 {
   return wang_hash(floatBitsToUint(key));
 }
-
-
 
 //
 // Hash function: Murmur Hash
@@ -79,16 +79,12 @@ vec4 hash_to_color(uint hash){
 
 vec4 swd_to_color(float s_wd){
     
-    if(s_wd >= 0 && s_wd <= 1){
+    if(s_wd >= 0 && s_wd <= 1)
         return vec4(0, s_wd * 10, 0, 1); 
-    }
-    if(s_wd < 0) {
+    if(s_wd < 0)
         return vec4(s_wd * (-10), 0, 0, 1);
-    }
-    if(s_wd > 1){
+    if(s_wd > 1)
         return vec4(0,0, (s_wd - 1), 1);
-    }
-
 }
 
 //
@@ -98,14 +94,6 @@ vec4 swd_to_color(float s_wd){
 float s_wd_calc(ConfigurationValues c, vec3 position){
     float dis = distance(position, c.camera_position);
     float s_w = dis * tan(c.s_p * c.f * (1.0f / c.res.x)); //max(1 / c.res.y, c.res.y / pow(c.res.x, 2)));
-    float log_step = floor(log2(s_w / S_MIN));
-    return pow(2, log_step) * S_MIN;
-}
-
-
-float s_wd_calc_debug(ConfigurationValues c, vec3 position, float s_p){
-    float dis = distance(position, c.camera_position);
-    float s_w = dis * tan(s_p * c.f * (1.0f / c.res.x));
     float log_step = floor(log2(s_w / S_MIN));
     return pow(2, log_step) * S_MIN;
 }
