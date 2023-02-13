@@ -39,10 +39,12 @@
 class Timer
 {
 public:
-  Timer() = default;
-  ~Timer();
+  Timer(HelloVulkan* _helloVk)
+      : helloVk(_helloVk){};
+  ~Timer() = default;
 
-  void init(HelloVulkan* helloVk, const VkCommandBuffer* cmdBuffer);
+  void init(const VkCommandBuffer* cmdBuffer, uint8_t index);
+  void conclude();
 
   /// Clears all stored queries.
   void clear();
@@ -95,9 +97,9 @@ private:
   void addTimesForFrame(uint32_t frameIdx, VkCommandBuffer commandBuffer = VK_NULL_HANDLE);
 
   HelloVulkan*           helloVk;
-  const VkCommandBuffer* cmdBuffer;
+  std::array<const VkCommandBuffer*, 3> cmdBuffer{};
 
-  VkQueryPool queryPool{};
+  std::array<VkQueryPool, 3> queryPool{};
 
   uint32_t baseFrameIdx = std::numeric_limits<uint32_t>::max();
 
@@ -129,7 +131,8 @@ private:
   // CPU timer.
   std::map<std::string, std::chrono::time_point<std::chrono::system_clock>> startTimesCPU;
 
-  bool inited = false;
+  std::array<bool, 3> inited{false, false, false};
+  uint8_t curr_index = 0;
 };
 
 typedef std::shared_ptr<Timer> TimerPtr;

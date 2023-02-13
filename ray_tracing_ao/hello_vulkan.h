@@ -34,7 +34,7 @@ class Timer;
 
 struct AoControl
 {
-  float rtao_radius{2.0f};       // Length of the ray
+  float rtao_radius{5.0f};       // Length of the ray
   int   rtao_samples{4};         // Nb samples at each iteration
   float rtao_power{3.0f};        // Darkness is stronger for more hits
   int   rtao_distance_based{1};  // Attenuate based on distance

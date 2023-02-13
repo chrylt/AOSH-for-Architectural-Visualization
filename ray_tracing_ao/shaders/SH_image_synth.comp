@@ -57,6 +57,7 @@ layout(push_constant) uniform params_
 //get the values for each pixel from the hash map and store in texture
 void main()
 {
+  //return;   //MEASURE!!
   float ao    = 0.0;
 
   // Retrieving position and normal

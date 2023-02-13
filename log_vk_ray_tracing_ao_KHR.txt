@@ -227,5 +227,10 @@ VK_KHR_acceleration_structure
 VK_KHR_ray_query
 VK_KHR_deferred_host_operations
 
-Loading File:  media/scenes/sample_city_scaled.obj 
-File not found: media/textures/C:\Work\export\surface_Otta
+Loading File:  media/scenes/japan_street.obj 
+File not found: media/textures/_sign.jpg
+In directories: 
+ - C:/Users/ge38dar/Project/bin_x64/Debug/../../main/ray_tracing_ao/
+ - C:/Users/ge38dar/Project/bin_x64/Debug/../../main/ray_tracing_ao/..
+ - vk_ray_tracing_ao_KHR
+

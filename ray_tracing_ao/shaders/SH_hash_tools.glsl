@@ -53,7 +53,7 @@ uint murmur_hash(float f) {
     uint x = floatBitsToUint(f);
     x ^= x >> 16;
     x *= 0x7feb352dU;
-    x ^= x >> 15;
+    x ^= x >> 13;
     x *= 0x846ca68bU;
     x ^= x >> 16;
     return x;
@@ -97,7 +97,15 @@ vec4 swd_to_color(float s_wd){
 
 float s_wd_calc(ConfigurationValues c, vec3 position){
     float dis = distance(position, c.camera_position);
-    float s_w = dis * tan(c.s_p * c.f * max(1 / c.res.y, c.res.y / pow(c.res.x, 2)));
+    float s_w = dis * tan(c.s_p * c.f * (1.0f / c.res.x)); //max(1 / c.res.y, c.res.y / pow(c.res.x, 2)));
+    float log_step = floor(log2(s_w / S_MIN));
+    return pow(2, log_step) * S_MIN;
+}
+
+
+float s_wd_calc_debug(ConfigurationValues c, vec3 position, float s_p){
+    float dis = distance(position, c.camera_position);
+    float s_w = dis * tan(s_p * c.f * (1.0f / c.res.x));
     float log_step = floor(log2(s_w / S_MIN));
     return pow(2, log_step) * S_MIN;
 }

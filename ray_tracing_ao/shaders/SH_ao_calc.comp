@@ -135,6 +135,9 @@ void main()
     occlusion = 1 - (occlusion / rtao_samples);
     occlusion = pow(clamp(occlusion, 0, 1), rtao_power);
 
+    //imageStore(outImage, ivec2(gl_GlobalInvocationID.xy), vec4(occlusion)); //MEASURE
+    //return;                                                                 //!!
+
     //
     // Start of Code for Hashmap
     //

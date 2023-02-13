@@ -28,15 +28,17 @@
 #include <iostream>
 #include "Timer.h"
 
-void Timer::init(HelloVulkan* _helloVk, const VkCommandBuffer* _cmdBuffer)
+void Timer::init(const VkCommandBuffer* _cmdBuffer, uint8_t index)
 {
-  /* if(inited)
-      return;
 
-  inited = true;*/
+  curr_index       = index;
 
-  helloVk = _helloVk;
-  cmdBuffer = _cmdBuffer;
+  if(inited[curr_index])
+    return;
+
+  inited[curr_index] = true;
+
+  cmdBuffer[index] = _cmdBuffer;
 
   VkPhysicalDeviceProperties deviceProperties;
   vkGetPhysicalDeviceProperties(helloVk->getPhysicalDevice(), &deviceProperties);
@@ -50,8 +52,8 @@ void Timer::init(HelloVulkan* _helloVk, const VkCommandBuffer* _cmdBuffer)
   queryPoolCreateInfo.sType                 = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
   queryPoolCreateInfo.queryType             = VK_QUERY_TYPE_TIMESTAMP;
   queryPoolCreateInfo.queryCount            = maxNumQueries;
-  vkCreateQueryPool(helloVk->getDevice(), &queryPoolCreateInfo, nullptr, &queryPool);
-  vkCmdResetQueryPool(*cmdBuffer, queryPool, 0, maxNumQueries);
+  vkCreateQueryPool(helloVk->getDevice(), &queryPoolCreateInfo, nullptr, &queryPool[index]);
+  vkCmdResetQueryPool(*cmdBuffer[index], queryPool[index], 0, maxNumQueries);
 
   queryBuffer = new uint64_t[maxNumQueries];
 
@@ -60,7 +62,7 @@ void Timer::init(HelloVulkan* _helloVk, const VkCommandBuffer* _cmdBuffer)
 
 }
 
-Timer::~Timer()
+void Timer::conclude()
 {
   bool hasPendingQueries = false;
   for(auto& currentFrameData : frameData)
@@ -77,8 +79,22 @@ Timer::~Timer()
   }
 
   clear();
-  vkDeviceWaitIdle(helloVk->getDevice());
-  vkDestroyQueryPool(helloVk->getDevice(), queryPool, nullptr);
+  for(int i = 0; i < 3; i++)
+  {
+    VkCommandBufferBeginInfo beginInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    vkBeginCommandBuffer(*cmdBuffer[i], &beginInfo);
+    vkDeviceWaitIdle(helloVk->getDevice());
+    vkDestroyQueryPool(helloVk->getDevice(), queryPool[i], nullptr);
+    vkEndCommandBuffer(*cmdBuffer[i]);
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType        = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers    = cmdBuffer[i]; 
+
+    vkQueueSubmit(helloVk->getQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+  }
   delete[] queryBuffer;
 }
 
@@ -129,7 +145,7 @@ void Timer::startGPU(const std::string& eventName)
     std::cout << "Error in vk::Timer::Timer: Exceeded maximum number of simultaneous queries." << std::endl;
   }
 
-  vkCmdWriteTimestamp(*cmdBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryPool, currentQueryIdx);
+  vkCmdWriteTimestamp(*cmdBuffer[curr_index], VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryPool[curr_index], currentQueryIdx);
   currentFrameData.queryStartIndices[eventName] = currentQueryIdx;
   currentFrameData.queryEndIndices[eventName]   = currentQueryIdx + 1;
   currentFrameData.numQueries += 2;
@@ -148,7 +164,7 @@ void Timer::endGPU(const std::string& eventName)
     std::cout << "Error in vk::Timer::endGPU: No call to 'start' before 'end' for event \"" << it->first 
                                << "\"." << std::endl;
   }
-  vkCmdWriteTimestamp(*cmdBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryPool, it->second);
+  vkCmdWriteTimestamp(*cmdBuffer[curr_index], VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryPool[curr_index], it->second);
 }
 
 void Timer::addTimesForFrame(uint32_t frameIdx, VkCommandBuffer commandBuffer)
@@ -158,7 +174,8 @@ void Timer::addTimesForFrame(uint32_t frameIdx, VkCommandBuffer commandBuffer)
   {
     return;
   }
-  VkResult res = vkGetQueryPoolResults(helloVk->getDevice(), queryPool, currentFrameData.queryStart, currentFrameData.numQueries,
+  VkResult res =
+      vkGetQueryPoolResults(helloVk->getDevice(), queryPool[curr_index], currentFrameData.queryStart, currentFrameData.numQueries,
                         currentFrameData.numQueries * sizeof(uint64_t), queryBuffer + currentFrameData.queryStart,
                         sizeof(uint64_t), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
 
@@ -182,9 +199,9 @@ void Timer::addTimesForFrame(uint32_t frameIdx, VkCommandBuffer commandBuffer)
 
   if(commandBuffer == VK_NULL_HANDLE)
   {
-    commandBuffer = *cmdBuffer;
+    commandBuffer = *cmdBuffer[curr_index];
   }
-  vkCmdResetQueryPool(commandBuffer, queryPool, currentFrameData.queryStart, currentFrameData.numQueries);
+  vkCmdResetQueryPool(commandBuffer, queryPool[curr_index], currentFrameData.queryStart, currentFrameData.numQueries);
 }
 
 void Timer::startCPU(const std::string& eventName)

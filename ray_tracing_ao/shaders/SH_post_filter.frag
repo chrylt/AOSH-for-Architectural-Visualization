@@ -61,6 +61,10 @@ void main()
   float ao_mid    = texture(aoTxt, uv).x;
   float final_ao = 0.0;
 
+  
+  //fragColor = pow(color * ao_mid, vec4(gamma)); //MEASURE
+  //return;
+
   // Retrieving position and normal
   vec4 gBuffer = imageLoad(_gBuffer, ivec2(gl_FragCoord.xy));
 
@@ -78,7 +82,7 @@ void main()
     
     //give hash-cells colors
     if(config.debug_color)
-        color = hash_to_color(H7D_SWD(config, position_mid, normal_mid, s_wd));
+        color = hash_to_color(H7D_SWD(config, position_mid, normal_mid, s_wd_calc_debug(config, position_mid, config.s_p)));
 
     // Iterations of À-trous wavelet filtering
     for(int it = 0; it < 3; ++it){ 
@@ -120,7 +124,7 @@ void main()
     //color = vec4(position_mid, 1);
   }
   else{
-    color = vec4(0.5,0.5,0.5,1);
+    color = vec4(0,0,0,1);
     final_ao = 0.5;
 
   }
