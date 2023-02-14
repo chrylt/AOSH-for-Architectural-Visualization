@@ -26,3 +26,7 @@ The results show that the use of spatial hashing can significantly improve both 
 ## Setup
 
 To be able to compile and run the application, please follow the [setup](docs/setup.md) instructions. Find more over nvpro-samples setup at: https://github.com/nvpro-samples/build_all.
+
+## Display of different models
+
+Multiple 3D models sizes have been adjusted to be viewed comfortably within the application. They can be downloaded here: https://syncandshare.lrz.de/getlink/fiSBsvM75RdR6ExdiqHgpS/
