@@ -1,10 +1,8 @@
 # Ambient Occlusion using Spatial Hashing for Architectural Visualization
 
-![result](docs/Images/result.png)
+
 
 This repository contains the practical part of my bachelor thesis on "Ambient Occlusion using Spatial Hashing for Architectural Visualization".
-
-![UI](docs/Images/UI.png)
 
 ## Abstract
 
@@ -17,6 +15,11 @@ This thesis first provides an overview of the basic principle of ambient occlusi
 Comprehensive run-time and quality measurements of our implementation of ambient occlusion are then conducted.
 
 The results show that the use of spatial hashing can significantly improve both the quality and performance of ambient occlusion in real-time architectural visualization, opening up opportunities for increased use of this technique in the field.
+
+
+![result](docs/Images/result.png)
+
+![UI](docs/Images/UI.png)
 
 ![debug_hash_cells](docs/Images/debug_hash_cells.png)
 
