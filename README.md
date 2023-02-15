@@ -1,6 +1,7 @@
 # Ambient Occlusion using Spatial Hashing for Architectural Visualization
 
 
+![UI](docs/Images/UI.png)
 
 This repository contains the practical part of my bachelor thesis on "Ambient Occlusion using Spatial Hashing for Architectural Visualization".
 
@@ -18,8 +19,6 @@ The results show that the use of spatial hashing can significantly improve both 
 
 
 ![result](docs/Images/result.png)
-
-![UI](docs/Images/UI.png)
 
 ![debug_hash_cells](docs/Images/debug_hash_cells.png)
 
