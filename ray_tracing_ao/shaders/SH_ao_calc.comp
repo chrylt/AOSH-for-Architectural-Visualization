@@ -202,9 +202,5 @@ void main()
     //
     // End of Code for Hashmap
     //
-
-    //noisy update
-    //imageStore(outImage, ivec2(gl_GlobalInvocationID.xy), vec4(occlusion));
-
 }
  

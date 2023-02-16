@@ -82,7 +82,7 @@ int main(int argc, char** argv)
     return 1;
   }
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-  GLFWwindow* window = glfwCreateWindow(SAMPLE_WIDTH, SAMPLE_HEIGHT, PROJECT_NAME, nullptr, nullptr);
+  GLFWwindow* window = glfwCreateWindow(SAMPLE_WIDTH, SAMPLE_HEIGHT, "AOSH", nullptr, nullptr);
 
 
   // Setup camera
@@ -116,7 +116,7 @@ int main(int argc, char** argv)
   contextInfo.setVersion(1, 2);                       // Using Vulkan 1.2
   for(uint32_t ext_id = 0; ext_id < count; ext_id++)  // Adding required extensions (surface, win32, linux, ..)
     contextInfo.addInstanceExtension(reqExtensions[ext_id]);
-  contextInfo.addInstanceLayer("VK_LAYER_LUNARG_monitor", true);              // FPS in titlebar
+  //contextInfo.addInstanceLayer("VK_LAYER_LUNARG_monitor", true);              // FPS in titlebar
   contextInfo.addInstanceExtension(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, true);  // Allow debug names
   contextInfo.addDeviceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME);            // Enabling ability to present rendering
 
@@ -160,7 +160,7 @@ int main(int argc, char** argv)
       SPONZA_NEW
   };
 
-  MODEL current_model = SPONZA_NEW;
+  MODEL current_model = SAMPLE_CITY;
 
   nvmath::vec3f ctr;
   nvmath::vec3f eye;
@@ -235,7 +235,7 @@ int main(int argc, char** argv)
 
   CameraManip.setLookat(eye, ctr, nvmath::vec3f{0, 1, 0}, true);
   CameraManip.setMode(CameraManip.Walk);
-  
+
   // Main loop
   while(!glfwWindowShouldClose(window))
   {
@@ -254,7 +254,7 @@ int main(int argc, char** argv)
       {
         ImGuiH::Panel::Begin();
 
-        //renderUI(helloVk);
+        renderUI(helloVk);
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::Checkbox("Show Hash Cells", (bool*)&helloVk.m_configObject->debug_color);

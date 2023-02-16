@@ -107,6 +107,5 @@ void main()
     color = vec4(0,0,0,1);
     final_ao = 0.5;
   }
-
   fragColor = pow(color * final_ao, vec4(gamma));
 }

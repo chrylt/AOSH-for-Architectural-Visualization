@@ -61,7 +61,7 @@ void HelloVulkan::setup(const VkInstance& instance, const VkDevice& device, cons
   m_configObject =std::make_unique<ConfigurationValues>(ConfigurationValues{});
   m_configObject->camera_position = CameraManip.getCamera().eye;
   m_configObject->s_nd            = 3.0;
-  m_configObject->s_p             = 0.15;
+  m_configObject->s_p             = 0.11;
   m_configObject->f               = CameraManip.getCamera().fov;
   m_configObject->res             = nvmath::vec2ui{CameraManip.getWidth(), CameraManip.getHeight()};
   m_configObject->min_nr_samples  = 60;
