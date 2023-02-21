@@ -148,23 +148,23 @@ void main()
         // Linear Search
         for(int i = 0; i < LINEAR_SEARCH_LENGTH; i++){
 
-            HashCell read_cell_i = hashMap[hash + i];
+            HashCell read_cell_i = hashMap[(hash+i)% HASH_MAP_SIZE];
 
             if(read_cell_i.contribution_counter == 0){
                 // Found empty hashcell => create new entry
-                final_index = hash + i;
+                final_index = (hash+i)% HASH_MAP_SIZE;
                 value_inserted = true;
                 clear_entry = true;
                 break;
             } else if(read_cell_i.checksum == checksum){
                 // Found fitting entry => add samples
-                final_index = hash + i;
+                final_index = (hash+i)% HASH_MAP_SIZE;
                 value_inserted = true;
                 break;
             } else {
                 // Found differing entry => continue search
                 rc_collection[i] = read_cell_i.rc;
-                hashMap[hash + i].rc = read_cell_i.rc + 1;
+                hashMap[(hash+i)% HASH_MAP_SIZE].rc = read_cell_i.rc + 1;
             }
         }
 
@@ -182,7 +182,7 @@ void main()
             }
 
             // Found oldest entry to replace
-            final_index = hash + final_offset;
+            final_index = (hash + final_offset) % HASH_MAP_SIZE;
             clear_entry = true;
         }
 
@@ -190,6 +190,7 @@ void main()
             hashMap[final_index].ao_value = 0;
             hashMap[final_index].contribution_counter = 0;
             hashMap[final_index].rc = 0;
+            hashMap[final_index].checksum = 0;
         }
 
         // Change entry to insert newly calculated values

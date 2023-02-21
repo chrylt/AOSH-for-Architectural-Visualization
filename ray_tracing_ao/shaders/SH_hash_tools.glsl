@@ -145,7 +145,7 @@ uint H7D_SWD_checksum(ConfigurationValues c, vec3 position, vec3 normal, float s
     return murmur_hash(normal_d.z)
          ^ murmur_hash(normal_d.y)
          ^ murmur_hash(normal_d.x)
-         ^ H4D_SWD(position, s_wd);
+         ^ H4D_SWD_checksum(position, s_wd);
 }
 
 //
