@@ -132,20 +132,20 @@ uint H4D_SWD_checksum(vec3 position, float s_wd){
     // Clamp to smallest cell size
     s_wd = max(s_wd, S_MIN);
 
-    return murmur_hash(s_wd)
-        ^ murmur_hash(floor(position.z / s_wd))
-        ^ murmur_hash(floor(position.y / s_wd))
-        ^ murmur_hash(floor(position.x/ s_wd));
+    return murmur_hash(floatBitsToUint(s_wd)
+        + murmur_hash(floatBitsToUint(floor(position.z / s_wd))
+        + murmur_hash(floatBitsToUint(floor(position.y / s_wd))
+        + murmur_hash(floatBitsToUint(floor(position.x/ s_wd))))));
 }
 
 // Actual all-inclusive checksum function for normal + position
 uint H7D_SWD_checksum(ConfigurationValues c, vec3 position, vec3 normal, float s_wd){
     normal = normal * c.s_nd;
     ivec3 normal_d = ivec3(normal);
-    return murmur_hash(normal_d.z)
-         ^ murmur_hash(normal_d.y)
-         ^ murmur_hash(normal_d.x)
-         ^ H4D_SWD_checksum(position, s_wd);
+    return murmur_hash(normal_d.z
+         + murmur_hash(normal_d.y
+         + murmur_hash(normal_d.x
+         + H4D_SWD_checksum(position, s_wd))));
 }
 
 //

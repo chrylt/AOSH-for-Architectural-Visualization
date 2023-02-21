@@ -268,7 +268,7 @@ int main(int argc, char** argv)
           changed |= ImGui::SliderFloat("Power", &aoControl.rtao_power, 1, 5);
           changed |= ImGui::Checkbox("Distanced Based", (bool*)&aoControl.rtao_distance_based);
           changed |= ImGui::SliderFloat("Normal Tolerance", &helloVk.m_configObject->s_nd, 1, 5);
-          changed |= ImGui::SliderFloat("Cell Size in Pixel", &helloVk.m_configObject->s_p, 0.001, 3);
+          changed |= ImGui::SliderFloat("Cell Size in Pixel", &helloVk.m_configObject->s_p, 1, 20);
 
           if(changed)
             helloVk.resetFrame();

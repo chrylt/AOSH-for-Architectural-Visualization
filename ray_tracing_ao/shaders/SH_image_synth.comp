@@ -79,9 +79,10 @@ void main()
             break;
         }
     }
-    ao /= current_samples;
+    if(current_samples > 0)
+        ao /= current_samples;
   }
 
-  imageStore(outImage, ivec2(gl_GlobalInvocationID.xy), vec4(ao));
+  imageStore(outImage, ivec2(gl_GlobalInvocationID.xy), vec4(min(1,ao)));
 }
  
