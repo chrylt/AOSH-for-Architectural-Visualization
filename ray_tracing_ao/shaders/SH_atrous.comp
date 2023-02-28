@@ -63,11 +63,8 @@ void main()
             // Calculate offset of sample in pixel-space
             vec2 sample_step = vec2(i, j) * pow2[a_trous_iteration];
 
-            // Jittering to reduce artfacts
-            vec2 jittering = vec2(random_in_range(0, -0.5, 0.5), random_in_range(0, -0.5, 0.5));
-                
             // Calculate the fragment coordinates of the sample
-            vec2 sample_uv = uv + sample_step + jittering;
+            vec2 sample_uv = uv + sample_step;
 
             // Fetch ao at sample position
             float sample_ao = imageLoad(_aoBuffer, ivec2(sample_uv)).x;

@@ -160,7 +160,7 @@ int main(int argc, char** argv)
       SPONZA_NEW
   };
 
-  MODEL current_model = SAMPLE_CITY;
+  MODEL current_model = SPONZA_NEW;
 
   nvmath::vec3f ctr;
   nvmath::vec3f eye;
