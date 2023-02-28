@@ -219,6 +219,10 @@ int main(int argc, char** argv)
   helloVk.updateCompDescriptors();
   helloVk.createCompPipelines();
 
+  helloVk.createSynthDescriptors();
+  helloVk.updateSynthDescriptors();
+  helloVk.createSynthPipelines();
+
   helloVk.createFilterDescriptors();
   helloVk.updateFilterDescriptors();
   helloVk.createFilterPipelines();

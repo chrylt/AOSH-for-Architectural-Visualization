@@ -1054,7 +1054,7 @@ build nvpro_core\third_party\glfw\src\install\local: phony nvpro_core\third_part
 #############################################
 # Order-only phony target for vk_ray_tracing_ao_KHR
 
-build cmake_object_order_depends_target_vk_ray_tracing_ao_KHR: phony || C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\SH_ao_calc.comp.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\SH_image_synth.comp.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\SH_post_filter.frag.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\SH_vert_shader.vert.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\ao.comp.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\frag_shader.frag.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\passthrough.vert.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\post.frag.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\vert_shader.vert.spv cmake_object_order_depends_target_glfw cmake_object_order_depends_target_imgui cmake_object_order_depends_target_nvpro_core
+build cmake_object_order_depends_target_vk_ray_tracing_ao_KHR: phony || C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\SH_ao_calc.comp.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\SH_atrous.comp.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\SH_image_synth.comp.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\SH_post_filter.frag.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\SH_vert_shader.vert.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\ao.comp.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\frag_shader.frag.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\passthrough.vert.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\post.frag.spv C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\vert_shader.vert.spv cmake_object_order_depends_target_glfw cmake_object_order_depends_target_imgui cmake_object_order_depends_target_nvpro_core
 
 build ray_tracing_ao\CMakeFiles\vk_ray_tracing_ao_KHR.dir\SH_HashTester.cpp.obj: CXX_COMPILER__vk_ray_tracing_ao_KHR_RelWithDebInfo C$:\Users\ge38dar\Project\main\ray_tracing_ao\SH_HashTester.cpp || cmake_object_order_depends_target_vk_ray_tracing_ao_KHR
   DEFINES = -DNOMINMAX -DNVP_SUPPORTS_VULKANSDK -DPROJECT_DOWNLOAD_RELDIRECTORY=\"../../downloaded_resources/\" -DPROJECT_NAME=\"vk_ray_tracing_ao_KHR\" -DPROJECT_RELDIRECTORY=\"../../main/ray_tracing_ao/\" -DRESOURCE_DIRECTORY=\"C:/Users/ge38dar/Project/nvpro_core/resources/\" -DVK_ENABLE_BETA_EXTENSIONS -DVK_USE_PLATFORM_WIN32_KHR -DVULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1
@@ -1209,6 +1209,15 @@ build ray_tracing_ao\install\local: phony ray_tracing_ao\CMakeFiles\install\loca
 build C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\SH_ao_calc.comp.spv: CUSTOM_COMMAND C$:\Users\ge38dar\Project\main\ray_tracing_ao\shaders\SH_ao_calc.comp || C$:\Users\ge38dar\Project\bin_x64\RelWithDebInfo\nvpro_core_vk.lib nvpro_core\third_party\glfw\src\glfw3.lib nvpro_core\third_party\imgui.lib
   COMMAND = cmd.exe /C "cd /D C:\Users\ge38dar\Project\main\ray_tracing_ao && echo C:/VulkanSDK/1.3.224.1/bin/glslangValidator.exe -g --target-env vulkan1.2 -o C:/Users/ge38dar/Project/main/ray_tracing_ao/spv/SH_ao_calc.comp.spv C:/Users/ge38dar/Project/main/ray_tracing_ao/shaders/SH_ao_calc.comp && C:\VulkanSDK\1.3.224.1\bin\glslangValidator.exe -g --target-env vulkan1.2 -o C:/Users/ge38dar/Project/main/ray_tracing_ao/spv/SH_ao_calc.comp.spv C:/Users/ge38dar/Project/main/ray_tracing_ao/shaders/SH_ao_calc.comp"
   DESC = Generating C:/Users/ge38dar/Project/main/ray_tracing_ao/spv/SH_ao_calc.comp.spv
+  restat = 1
+
+
+#############################################
+# Custom command for C:\Users\ge38dar\Project\main\ray_tracing_ao\spv\SH_atrous.comp.spv
+
+build C$:\Users\ge38dar\Project\main\ray_tracing_ao\spv\SH_atrous.comp.spv: CUSTOM_COMMAND C$:\Users\ge38dar\Project\main\ray_tracing_ao\shaders\SH_atrous.comp || C$:\Users\ge38dar\Project\bin_x64\RelWithDebInfo\nvpro_core_vk.lib nvpro_core\third_party\glfw\src\glfw3.lib nvpro_core\third_party\imgui.lib
+  COMMAND = cmd.exe /C "cd /D C:\Users\ge38dar\Project\main\ray_tracing_ao && echo C:/VulkanSDK/1.3.224.1/bin/glslangValidator.exe -g --target-env vulkan1.2 -o C:/Users/ge38dar/Project/main/ray_tracing_ao/spv/SH_atrous.comp.spv C:/Users/ge38dar/Project/main/ray_tracing_ao/shaders/SH_atrous.comp && C:\VulkanSDK\1.3.224.1\bin\glslangValidator.exe -g --target-env vulkan1.2 -o C:/Users/ge38dar/Project/main/ray_tracing_ao/spv/SH_atrous.comp.spv C:/Users/ge38dar/Project/main/ray_tracing_ao/shaders/SH_atrous.comp"
+  DESC = Generating C:/Users/ge38dar/Project/main/ray_tracing_ao/spv/SH_atrous.comp.spv
   restat = 1
 
 

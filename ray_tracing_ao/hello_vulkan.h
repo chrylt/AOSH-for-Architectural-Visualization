@@ -40,6 +40,7 @@ struct AoControl
   int   rtao_distance_based{1};  // Attenuate based on distance
   int   frame{0};                // Current frame
   int   max_samples{100'000};    // Max samples before it stops
+  int   a_trous_iteration;
 };
 
 
@@ -171,11 +172,21 @@ public:
   VkPipeline                  m_compPipeline;
   VkPipelineLayout            m_compPipelineLayout;
 
+  void createSynthDescriptors();
+  void updateSynthDescriptors();
+  void createSynthPipelines();
+
+  nvvk::DescriptorSetBindings m_synthDescSetLayoutBind;
+  VkDescriptorPool            m_synthDescPool;
+  VkDescriptorSetLayout       m_synthDescSetLayout;
+  VkDescriptorSet             m_synthDescSet;
+  VkPipeline                  m_synthPipeline;
+  VkPipelineLayout            m_synthPipelineLayout;
+
     // #Tuto_animation
   void createFilterDescriptors();
   void updateFilterDescriptors();
   void createFilterPipelines();
-  void runFilter(VkCommandBuffer cmdBuf, Timer& timer);
 
   nvvk::DescriptorSetBindings m_filterDescSetLayoutBind;
   VkDescriptorPool            m_filterDescPool;

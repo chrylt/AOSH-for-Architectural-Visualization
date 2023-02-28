@@ -474,11 +474,11 @@
 	[
 		{
 			"backtrace" : 5,
-			"id" : "imgui::@5b01a53f2adf05ebbe89"
+			"id" : "nvpro_core::@ab9da236d811a907ec30"
 		},
 		{
 			"backtrace" : 5,
-			"id" : "nvpro_core::@ab9da236d811a907ec30"
+			"id" : "imgui::@5b01a53f2adf05ebbe89"
 		},
 		{
 			"backtrace" : 5,
@@ -601,28 +601,29 @@
 				20,
 				21,
 				22,
-				23
+				23,
+				24
 			]
 		},
 		{
 			"name" : "Shader Headers",
 			"sourceIndexes" : 
 			[
-				24,
 				25,
 				26,
-				27
+				27,
+				28
 			]
 		},
 		{
 			"name" : "Header Files",
 			"sourceIndexes" : 
 			[
-				28,
 				29,
 				30,
 				31,
-				32
+				32,
+				33
 			]
 		}
 	],
@@ -714,6 +715,11 @@
 		{
 			"backtrace" : 32,
 			"path" : "ray_tracing_ao/shaders/SH_ao_calc.comp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 32,
+			"path" : "ray_tracing_ao/shaders/SH_atrous.comp",
 			"sourceGroupIndex" : 2
 		},
 		{

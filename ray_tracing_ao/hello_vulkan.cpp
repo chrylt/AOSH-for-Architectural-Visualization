@@ -426,6 +426,12 @@ void HelloVulkan::destroyResources()
   vkDestroyDescriptorPool(m_device, m_compDescPool, nullptr);
   vkDestroyDescriptorSetLayout(m_device, m_compDescSetLayout, nullptr);
 
+  // Image Synth
+  vkDestroyPipeline(m_device, m_synthPipeline, nullptr);
+  vkDestroyPipelineLayout(m_device, m_synthPipelineLayout, nullptr);
+  vkDestroyDescriptorPool(m_device, m_synthDescPool, nullptr);
+  vkDestroyDescriptorSetLayout(m_device, m_synthDescSetLayout, nullptr);
+
   // Filter
   vkDestroyPipeline(m_device, m_filterPipeline, nullptr);
   vkDestroyPipelineLayout(m_device, m_filterPipelineLayout, nullptr);
@@ -815,6 +821,19 @@ void HelloVulkan::createCompDescriptors()
   m_compDescSet       = nvvk::allocateDescriptorSet(m_device, m_compDescPool, m_compDescSetLayout);
 }
 
+void HelloVulkan::createSynthDescriptors()
+{
+  m_synthDescSetLayoutBind.addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1, VK_SHADER_STAGE_COMPUTE_BIT);  // [in] G-Buffer
+  m_synthDescSetLayoutBind.addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1, VK_SHADER_STAGE_COMPUTE_BIT);  // [out] AO
+
+  m_synthDescSetLayoutBind.addBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT);  // [in-out] hashmap
+  m_synthDescSetLayoutBind.addBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT);
+
+  m_synthDescSetLayout = m_synthDescSetLayoutBind.createLayout(m_device);
+  m_synthDescPool      = m_synthDescSetLayoutBind.createPool(m_device, 1);
+  m_synthDescSet       = nvvk::allocateDescriptorSet(m_device, m_synthDescPool, m_synthDescSetLayout);
+}
+
 void HelloVulkan::createFilterDescriptors()
 {
   m_filterDescSetLayoutBind.addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1, VK_SHADER_STAGE_COMPUTE_BIT);  // [in] G-Buffer
@@ -844,6 +863,17 @@ void HelloVulkan::updateCompDescriptors()
   descASInfo.accelerationStructureCount = 1;
   descASInfo.pAccelerationStructures    = &tlas;
   writes.emplace_back(m_compDescSetLayoutBind.makeWrite(m_compDescSet, 2, &descASInfo));
+
+  vkUpdateDescriptorSets(m_device, static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
+}
+
+void HelloVulkan::updateSynthDescriptors()
+{
+  std::vector<VkWriteDescriptorSet> writes;
+  writes.emplace_back(m_synthDescSetLayoutBind.makeWrite(m_synthDescSet, 0, &m_gBuffer.descriptor));
+  writes.emplace_back(m_synthDescSetLayoutBind.makeWrite(m_synthDescSet, 1, &m_aoBuffer.descriptor));
+  writes.emplace_back(m_synthDescSetLayoutBind.makeWrite(m_synthDescSet, 2, &m_hashMapDescInfo));
+  writes.emplace_back(m_synthDescSetLayoutBind.makeWrite(m_synthDescSet, 3, &m_configBufferDescInfo));
 
   vkUpdateDescriptorSets(m_device, static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
 }
@@ -883,6 +913,28 @@ void HelloVulkan::createCompPipelines()
   vkDestroyShaderModule(m_device, cpCreateInfo.stage.module, nullptr);
 }
 
+void HelloVulkan::createSynthPipelines()
+{
+  // pushing time
+  VkPushConstantRange        push_constants = {VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(AoControl)};
+  VkPipelineLayoutCreateInfo plCreateInfo{VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
+  plCreateInfo.setLayoutCount         = 1;
+  plCreateInfo.pSetLayouts            = &m_synthDescSetLayout;
+  plCreateInfo.pushConstantRangeCount = 1;
+  plCreateInfo.pPushConstantRanges    = &push_constants;
+  vkCreatePipelineLayout(m_device, &plCreateInfo, nullptr, &m_synthPipelineLayout);
+
+  VkComputePipelineCreateInfo cpCreateInfo{VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO};
+  cpCreateInfo.layout = m_synthPipelineLayout;
+  cpCreateInfo.stage =
+      nvvk::createShaderStageInfo(m_device, nvh::loadFile("spv/SH_image_synth.comp.spv", true, defaultSearchPaths, true),
+                                  VK_SHADER_STAGE_COMPUTE_BIT);
+
+  vkCreateComputePipelines(m_device, {}, 1, &cpCreateInfo, nullptr, &m_synthPipeline);
+
+  vkDestroyShaderModule(m_device, cpCreateInfo.stage.module, nullptr);
+}
+
 void HelloVulkan::createFilterPipelines()
 {
   // pushing time
@@ -896,7 +948,7 @@ void HelloVulkan::createFilterPipelines()
 
   VkComputePipelineCreateInfo cpCreateInfo{VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO};
   cpCreateInfo.layout = m_filterPipelineLayout;
-  cpCreateInfo.stage = nvvk::createShaderStageInfo(m_device, nvh::loadFile("spv/SH_image_synth.comp.spv", true, defaultSearchPaths, true),
+  cpCreateInfo.stage = nvvk::createShaderStageInfo(m_device, nvh::loadFile("spv/SH_atrous.comp.spv", true, defaultSearchPaths, true),
                                                    VK_SHADER_STAGE_COMPUTE_BIT);
 
   vkCreateComputePipelines(m_device, {}, 1, &cpCreateInfo, nullptr, &m_filterPipeline);
@@ -972,10 +1024,10 @@ void HelloVulkan::runCompute(VkCommandBuffer cmdBuf, AoControl& aoControl,Timer&
 
   // Filtering
 
-  vkCmdBindPipeline(cmdBuf, VK_PIPELINE_BIND_POINT_COMPUTE, m_filterPipeline);
-  vkCmdBindDescriptorSets(cmdBuf, VK_PIPELINE_BIND_POINT_COMPUTE, m_filterPipelineLayout, 0, 1, &m_filterDescSet, 0, nullptr);
+  vkCmdBindPipeline(cmdBuf, VK_PIPELINE_BIND_POINT_COMPUTE, m_synthPipeline);
+  vkCmdBindDescriptorSets(cmdBuf, VK_PIPELINE_BIND_POINT_COMPUTE, m_synthPipelineLayout, 0, 1, &m_synthDescSet, 0, nullptr);
 
-  vkCmdPushConstants(cmdBuf, m_filterPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(AoControl), &aoControl);
+  vkCmdPushConstants(cmdBuf, m_synthPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(AoControl), &aoControl);
 
   timer.startGPU("image_synth");
   vkCmdDispatch(cmdBuf, (m_size.width + (GROUP_SIZE - 1)) / GROUP_SIZE, (m_size.height + (GROUP_SIZE - 1)) / GROUP_SIZE, 1);
@@ -983,6 +1035,21 @@ void HelloVulkan::runCompute(VkCommandBuffer cmdBuf, AoControl& aoControl,Timer&
   vkCmdPipelineBarrier(cmdBuf, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                        VK_DEPENDENCY_DEVICE_GROUP_BIT, 0, nullptr, 0, nullptr, 1, &imgMemBarrier);
 
+  vkCmdBindPipeline(cmdBuf, VK_PIPELINE_BIND_POINT_COMPUTE, m_filterPipeline);
+  vkCmdBindDescriptorSets(cmdBuf, VK_PIPELINE_BIND_POINT_COMPUTE, m_filterPipelineLayout, 0, 1, &m_filterDescSet, 0, nullptr);
+
+  if(m_configObject->toggle_filter)
+  {
+    for(int i = 0; i < m_configObject->atrous_iterations; ++i)
+    {
+      aoControl.a_trous_iteration = i;
+      vkCmdPushConstants(cmdBuf, m_filterPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(AoControl), &aoControl);
+
+      vkCmdDispatch(cmdBuf, (m_size.width + (GROUP_SIZE - 1)) / GROUP_SIZE, (m_size.height + (GROUP_SIZE - 1)) / GROUP_SIZE, 1);
+      vkCmdPipelineBarrier(cmdBuf, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                           VK_DEPENDENCY_DEVICE_GROUP_BIT, 0, nullptr, 0, nullptr, 1, &imgMemBarrier);
+    }
+  }
 
   m_debug.endLabel(cmdBuf);
 }
