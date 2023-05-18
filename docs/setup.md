@@ -12,7 +12,7 @@ Cloning all repositories
 
 ~~~~~
 git clone --recursive --shallow-submodules https://github.com/nvpro-samples/nvpro_core.git
-git clone https://github.com/nvpro-samples/vk_raytracing_tutorial_KHR.git
+git checkout 88e638609f60566bb8686b819e38002d1bbfbf92
 ~~~~~
 
 The directory structure should be looking like this:
