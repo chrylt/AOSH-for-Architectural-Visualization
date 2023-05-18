@@ -21,9 +21,8 @@ The directory structure should be looking like this:
    C:\Vulkan\nvpro-samples
    | 
    +---nvpro_core
-   +---vk_raytracing_tutorial_KHR
-   |   +---ray_tracing__simple
-   |   +---ray_tracing_...
+   +---AOSH-for-Architectural-Visualization
+   |   +---ray_tracing__ao
    |   \---...   
 ~~~~
 
