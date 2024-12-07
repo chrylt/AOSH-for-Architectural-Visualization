@@ -5,6 +5,10 @@
 
 This repository contains the practical part of my bachelor thesis on "Ambient Occlusion using Spatial Hashing for Architectural Visualization".
 
+Watch the showreel on YouTube:
+
+[![Showreel](https://i.ytimg.com/an_webp/33Flh_GwaPs/mqdefault_6s.webp?du=3000&sqp=CJj40roG&rs=AOn4CLAqjtAO51Q1BQfWBhZDmi2Ir1lkLQ)](https://www.youtube.com/watch?v=33Flh_GwaPs)
+
 ## Abstract
 
 In the field of architectural visualization, there is a need to create interactive and accessible renderings of 3D architectural models. One method that lends itself to this type of visualization is ambient occlusion.
