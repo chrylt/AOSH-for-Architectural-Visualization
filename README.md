@@ -5,9 +5,7 @@
 
 This repository contains the practical part of my bachelor thesis on "Ambient Occlusion using Spatial Hashing for Architectural Visualization".
 
-Watch the showreel on YouTube:
-
-[![Showreel](https://i.ytimg.com/an_webp/33Flh_GwaPs/mqdefault_6s.webp?du=3000&sqp=CJj40roG&rs=AOn4CLAqjtAO51Q1BQfWBhZDmi2Ir1lkLQ)](https://www.youtube.com/watch?v=33Flh_GwaPs)
+[Click here to view the showreel on YouTube](https://www.youtube.com/watch?v=33Flh_GwaPs)
 
 ## Abstract
 
@@ -15,7 +13,7 @@ In the field of architectural visualization, there is a need to create interacti
 
 Ambient occlusion is a technique for creating soft shading for a scene without the use of any light sources, but by using geometry information about open spaces within a scene instead. 
 
-This thesis first provides an overview of the basic principle of ambient occlusion and then reviews the methods used to implement it, focusing on a method that involves spatial hashing, which identifies the core of this thesis. 
+This thesis first provides an overview of the basic principle of ambient occlusion and then reviews the methods used to implement it, focusing on a method that involves spatial hashing [[Gautron2020]](https://dl.acm.org/doi/10.1145/3388767.3407375), which identifies the core of this thesis. 
 
 Comprehensive run-time and quality measurements of our implementation of ambient occlusion are then conducted.
 
